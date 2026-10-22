@@ -1,0 +1,28 @@
+name: 24/7 Live Stream
+
+on:
+  schedule:
+    - cron: '0 */5 * * *' # Әр 5 сағат сайын қайта іске қосылады
+  workflow_dispatch: # Қолмен іске қосу үшін
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install FFmpeg & Node.js
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg puppeteer
+
+      - name: Start Live Stream
+        env:
+          STREAM_KEY: ${{ secrets.YOUTUBE_STREAM_KEY }}
+        run: |
+          # livecounts.io Top 50 сайтын экранға шығарып, Ютубқа таратады
+          ffmpeg -re -f lavfi -i color=c=black:s=1280x720:r=30 \
+          -f flv rtmp://a.rtmp.youtube.com/live2/$STREAM_KEY
+          
